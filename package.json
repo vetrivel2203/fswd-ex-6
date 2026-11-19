@@ -1,0 +1,11 @@
+{
+  "name": "employee-management-system",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "start": "npm --prefix backend start",
+    "backend": "npm --prefix backend start",
+    "frontend": "npm --prefix frontend run dev"
+  }
+}

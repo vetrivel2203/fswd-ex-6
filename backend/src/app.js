@@ -5,19 +5,34 @@ import employeeRoutes from "./routes/employeeRoutes.js";
 
 const app = express();
 
-const allowedOrigins = [
+const defaultOrigins = [
   "http://localhost:5173",
+  "http://localhost:3000",
   "https://employee-management-system-seven-tan.vercel.app"
 ];
 
+const envOrigins = (process.env.CLIENT_URL || "")
+  .split(",")
+  .map(url => url.trim().replace(/\/+$/, ""))
+  .filter(Boolean);
+
+const allowedOrigins = [...defaultOrigins, ...envOrigins];
+
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || origin === process.env.CLIENT_URL) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
+    if (!origin) return callback(null, true);
+    const normalized = origin.replace(/\/+$/, "");
+    if (
+      allowedOrigins.includes(normalized) ||
+      /^https:\/\/[a-zA-Z0-9_.-]+\.vercel\.app$/.test(normalized)
+    ) {
+      return callback(null, true);
     }
-  }
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 app.use(express.json());
